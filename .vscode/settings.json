@@ -7,5 +7,8 @@
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript", "typescriptreact"],
   "tailwindCSS.experimental.configFile": "src/index.css",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
   "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

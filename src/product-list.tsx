@@ -1,44 +1,56 @@
+import { useId } from 'react'
+
 import { useProducts } from './api/fakestore/products'
+import { ProductCard, ProductCardSkeleton } from './product-card'
 import { useCartFlow } from './use-cart-flow'
 
+const SKELETON_COUNT = 8
+
 export function ProductList() {
+  const headingId = useId()
   const productsQuery = useProducts()
-  const { addProduct, busy, error } = useCartFlow()
+  const { cart, addProduct, busy, error } = useCartFlow()
+
+  const cartProductIds = new Set(cart?.products.map((item) => item.productId))
 
   return (
-    <div>
-      <div className="my-4 text-3xl font-bold underline">Products</div>
+    <section aria-labelledby={headingId} className="w-full">
+      <h2 id={headingId} className="my-4 text-3xl font-bold">
+        Products
+      </h2>
       {productsQuery.isError && (
-        <div className="text-red-500">
+        <p role="alert" className="text-red-500">
           Error fetching products: {productsQuery.error.message}
-        </div>
+        </p>
       )}
-      {productsQuery.isPending && <div>Loading products...</div>}
       {error && (
-        <div className="text-red-500">Error updating cart: {error.message}</div>
+        <p role="alert" className="text-red-500">
+          Error updating cart: {error.message}
+        </p>
       )}
-      {productsQuery.isSuccess && (
-        <ul className="flex flex-col gap-2">
-          {productsQuery.data.map((product) => (
-            <li
-              key={product.id}
-              className="flex items-center justify-between gap-4"
-            >
-              <span>
-                {product.title} - ${product.price}
-              </span>
-              <button
-                type="button"
-                className="shrink-0 rounded border px-2 py-1 text-sm disabled:opacity-50"
-                disabled={busy}
-                onClick={() => addProduct(product.id)}
-              >
-                Add to cart
-              </button>
-            </li>
-          ))}
+      <div className="mx-auto max-w-5xl">
+        <ul
+          aria-busy={!productsQuery.data}
+          className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        >
+          {productsQuery.data
+            ? productsQuery.data.map((product, index) => (
+                <li key={product.id}>
+                  <ProductCard
+                    product={product}
+                    inCart={cartProductIds.has(product.id)}
+                    disabled={busy}
+                    onAddToCart={() => addProduct(product.id)}
+                  />
+                </li>
+              ))
+            : Array.from({ length: SKELETON_COUNT }, (_, index) => (
+                <li key={`skeleton-${index}`}>
+                  <ProductCardSkeleton />
+                </li>
+              ))}
         </ul>
-      )}
-    </div>
+      </div>
+    </section>
   )
 }

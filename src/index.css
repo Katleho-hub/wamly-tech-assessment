@@ -1,113 +1,117 @@
 @import 'tailwindcss';
 
+@theme {
+  --font-sans: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Product card */
+  --color-ink: oklch(23.85% 0.0037 106.68);
+  --color-card-border: oklch(85.34% 0.0055 106.51);
+  --color-card-media: oklch(92.99% 0.0053 106.5);
+}
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --brand-color: oklch(66.51% 0.222 22.75);
+  --utility-background: oklch(96.15% 0.0054 274.97);
+  --gray-300: oklch(91.09% 0.007 247.9);
+  --white: oklch(100% 0 0);
+  --dark-color: oklch(46.13% 0.0103 248.05);
+  --light-gray: oklch(94.01% 0 0);
+  --lighter-gray: oklch(97.02% 0 0);
+  --light-gray-dark: oklch(68.3% 0 0);
+  --error: oklch(59.98% 0.2461 29.17);
+  --light-gray-darker: oklch(83.59% 0 0);
+  --primary-text: oklch(20.9% 0 0);
+  --orange-dark: oklch(67.17% 0.1444 71.27);
+  --orange: oklch(79.27% 0.171 70.67);
+  --utility-dark: oklch(24.35% 0 0);
+  --secondary-text: oklch(49.62% 0 0);
+  --secondary-text-light: oklch(68.3% 0 0);
+  --accent: oklch(68.48% 0.2041 23.96);
+  --blue: oklch(43.4% 0.0865 248.18);
+  --blue-lighter: oklch(48.14% 0.1326 250.16 / 0.5);
+  --blue-light: oklch(48.14% 0.1326 250.16);
+  --blue-dark: oklch(28.95% 0.0703 243.19);
+  --secondary-green: oklch(80.5% 0.1758 147.13);
+  --green-secondary: oklch(80.5% 0.1758 147.13);
+  --green-dark: oklch(67.45% 0.1954 145.19);
+  --utility-light-grey: oklch(91.39% 0.0124 276.09);
+  --scrollbar-track: var(--utility-background);
+  --scrollbar-subtle-track: oklch(19.04% 0.0381 247.91 / 0.06);
+  --scrollbar-subtle-thumb: oklch(18.92% 0.0459 268.48 / 0.14);
 }
 
-@media (prefers-color-scheme: dark) {
+/* ---------- Base ---------- */
+
+@layer base {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    scrollbar-gutter: stable;
+    color-scheme: light;
+    color: var(--primary-text);
+    background: var(--utility-background);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  body {
+    @apply bg-dot-grid;
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* Dotted grid background; pair with overflow-auto where the area scrolls */
+@utility bg-dot-grid {
+  background: radial-gradient(
+      circle,
+      oklch(91.02% 0.0097 273.35) 1px,
+      transparent 1px
+    )
+    0% 0% / 20px 20px;
 }
 
-body {
-  margin: 0;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background-color: var(--scrollbar-track);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: var(--brand-color);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-color: var(--brand-color) var(--scrollbar-track);
+    scrollbar-width: thin;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+/* Neutral variant for secondary scroll areas, e.g. the cart's item list */
+@utility scrollbar-subtle {
+  &::-webkit-scrollbar {
+    background-color: var(--scrollbar-subtle-track);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-subtle-thumb);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-color: var(--scrollbar-subtle-thumb) var(--scrollbar-subtle-track);
   }
 }
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+/* Scrollable with no visible bar, e.g. horizontal carousels */
+@utility scrollbar-hide {
+  scrollbar-width: none;
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
