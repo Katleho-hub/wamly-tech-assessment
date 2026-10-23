@@ -6,6 +6,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 
+import { CartIdProvider } from './cart-id-provider'
 import { HttpError } from './lib/api-client'
 import { router } from './router'
 
@@ -26,7 +27,9 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <CartIdProvider>
+        <RouterProvider router={router} />
+      </CartIdProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </StrictMode>,

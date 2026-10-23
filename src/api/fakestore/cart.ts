@@ -45,6 +45,9 @@ function deleteCart(id: number) {
   return fakeStoreApi<Cart | null>(`/carts/${id}`, { method: 'DELETE' })
 }
 
+// Shared by all cart mutations so callers can track them together
+export const cartMutationKey = ['carts']
+
 export function useCart(id: number | null) {
   const isIdValid = id != null
 
@@ -65,6 +68,7 @@ export function useCreateCart() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: cartMutationKey,
     mutationFn: createCart,
     onSuccess: (cart) => {
       queryClient.setQueryData(['carts', cart.id], cart)
@@ -76,6 +80,7 @@ export function useUpdateCart() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: cartMutationKey,
     mutationFn: updateCart,
     onSuccess: (cart) => {
       queryClient.setQueryData(['carts', cart.id], cart)
@@ -87,6 +92,7 @@ export function useDeleteCart() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: cartMutationKey,
     mutationFn: deleteCart,
     onSuccess: (_, cartId) => {
       queryClient.removeQueries({ queryKey: ['carts', cartId] })
