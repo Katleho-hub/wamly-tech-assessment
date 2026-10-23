@@ -2,11 +2,15 @@ import { useId } from 'react'
 
 import { type Product } from './api/fakestore/products'
 import { formatPrice } from './lib/format-price'
+import { resizedImageSrcSet, resizedImageUrl } from './lib/image-url'
 
 type ProductCardProps = {
   product: Product
   inCart: boolean
   disabled: boolean
+  // Above-the-fold cards load their image eagerly at high priority, since one
+  // of them is likely the Largest Contentful Paint element
+  priority?: boolean
   onAddToCart: () => void
 }
 
@@ -14,6 +18,7 @@ export function ProductCard({
   product,
   inCart,
   disabled,
+  priority = false,
   onAddToCart,
 }: ProductCardProps) {
   const titleId = useId()
@@ -25,8 +30,16 @@ export function ProductCard({
     >
       <figure className="pulse flex aspect-square max-h-44 items-center justify-center border-b border-card-border bg-card-media p-4 md:aspect-4/3 md:max-h-40">
         <img
-          src={product.image}
+          src={resizedImageUrl(product.image, 216)}
+          // 1x/2x/3x of the 144px mobile max and 1x/2x of the 216px desktop max
+          srcSet={resizedImageSrcSet(product.image, [144, 216, 288, 432])}
+          // Rendered width: at most 143px on mobile, a third of the viewport
+          // from sm, and a quarter of max-w-5xl from lg, minus padding and gaps
+          sizes="(min-width: 1024px) 216px, (min-width: 640px) calc(33vw - 50px), min(143px, calc(50vw - 50px))"
           alt=""
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
+          decoding="async"
           height="176"
           width="256"
           className="size-full object-contain mix-blend-multiply"

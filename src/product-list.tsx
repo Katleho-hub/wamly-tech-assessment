@@ -4,7 +4,11 @@ import { useProducts } from './api/fakestore/products'
 import { ProductCard, ProductCardSkeleton } from './product-card'
 import { useCartFlow } from './use-cart-flow'
 
-const SKELETON_COUNT = 8
+// fakestore always returns 20 products; matching that keeps content below
+// the grid from shifting when they arrive
+const SKELETON_COUNT = 20
+// Cards above the fold: two rows on mobile, the first row on desktop
+const PRIORITY_COUNT = 4
 
 export function ProductList() {
   const headingId = useId()
@@ -40,6 +44,7 @@ export function ProductList() {
                     product={product}
                     inCart={cartProductIds.has(product.id)}
                     disabled={busy}
+                    priority={index < PRIORITY_COUNT}
                     onAddToCart={() => addProduct(product.id)}
                   />
                 </li>
