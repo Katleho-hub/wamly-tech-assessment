@@ -13,25 +13,17 @@ const PRIORITY_COUNT = 4
 export function ProductList() {
   const headingId = useId()
   const productsQuery = useProducts()
-  const { cart, addProduct, busy, error } = useCartFlow()
+  const { cart, addProduct, busy } = useCartFlow()
 
-  const cartProductIds = new Set(cart?.products.map((item) => item.productId))
+  const cartQuantities = new Map(
+    cart?.products.map((item) => [item.productId, item.quantity]),
+  )
 
   return (
     <section aria-labelledby={headingId} className="w-full">
       <h2 id={headingId} className="my-4 text-3xl font-bold">
         Products
       </h2>
-      {productsQuery.isError && (
-        <p role="alert" className="text-red-500">
-          Error fetching products: {productsQuery.error.message}
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="text-red-500">
-          Error updating cart: {error.message}
-        </p>
-      )}
       <div className="mx-auto max-w-5xl">
         <ul
           aria-busy={!productsQuery.data}
@@ -42,10 +34,12 @@ export function ProductList() {
                 <li key={product.id}>
                   <ProductCard
                     product={product}
-                    inCart={cartProductIds.has(product.id)}
+                    quantity={cartQuantities.get(product.id) ?? 0}
                     disabled={busy}
                     priority={index < PRIORITY_COUNT}
-                    onAddToCart={() => addProduct(product.id)}
+                    onAddToCart={(callbacks) =>
+                      addProduct(product.id, callbacks)
+                    }
                   />
                 </li>
               ))

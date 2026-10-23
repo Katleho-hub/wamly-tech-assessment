@@ -1,27 +1,57 @@
-import { useId } from 'react'
+import { useId, useState } from 'react'
 
 import { type Product } from './api/fakestore/products'
 import { formatPrice } from './lib/format-price'
 import { resizedImageSrcSet, resizedImageUrl } from './lib/image-url'
+import { type CartActionCallbacks } from './use-cart-flow'
+
+type ButtonState = 'idle' | 'adding' | 'added' | 'error'
+
+const buttonStyles: Record<ButtonState, string> = {
+  idle: 'border-ink bg-ink text-white',
+  adding: 'border-transparent bg-ink/70 text-white',
+  added: 'border-ink bg-white text-ink',
+  error: 'border-ink bg-ink text-white',
+}
+
+const buttonLabels: Record<ButtonState, (quantity: number) => string> = {
+  idle: () => 'Add to cart',
+  adding: () => 'Adding...',
+  added: (quantity) => `Added (${quantity}) · Add another`,
+  error: () => 'Try again',
+}
 
 type ProductCardProps = {
   product: Product
-  inCart: boolean
+  quantity: number
   disabled: boolean
   // Above-the-fold cards load their image eagerly at high priority, since one
   // of them is likely the Largest Contentful Paint element
   priority?: boolean
-  onAddToCart: () => void
+  onAddToCart: (callbacks: CartActionCallbacks) => void
 }
 
 export function ProductCard({
   product,
-  inCart,
+  quantity,
   disabled,
   priority = false,
   onAddToCart,
 }: ProductCardProps) {
   const titleId = useId()
+  // This card's own request; other cards' requests only disable the button
+  const [status, setStatus] = useState<'idle' | 'adding' | 'error'>('idle')
+
+  const state: ButtonState =
+    status !== 'idle' ? status : quantity > 0 ? 'added' : 'idle'
+
+  function handleAddToCart() {
+    setStatus('adding')
+    onAddToCart({
+      onSuccess: () => setStatus('idle'),
+      onError: () => setStatus('error'),
+    })
+  }
 
   return (
     <article
@@ -62,15 +92,27 @@ export function ProductCard({
       <footer className="p-2.5">
         <button
           type="button"
-          className="flex h-11 w-full items-center justify-center gap-1 rounded-lg border border-ink bg-white px-1.5 text-[13px] font-semibold disabled:opacity-50"
-          disabled={disabled}
-          onClick={onAddToCart}
+          className={`flex h-11 w-full items-center justify-center gap-1.5 rounded-lg border px-1.5 text-center text-[13px] leading-tight font-semibold disabled:cursor-not-allowed ${buttonStyles[state]}`}
+          disabled={disabled || status === 'adding'}
+          onClick={handleAddToCart}
         >
-          {inCart && (
+          {state === 'adding' && (
             <svg
               aria-hidden="true"
-              width="14"
-              height="14"
+              className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <path d="M12 3a9 9 0 1 0 9 9" />
+            </svg>
+          )}
+          {state === 'added' && (
+            <svg
+              aria-hidden="true"
+              className="size-3.5 shrink-0"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -81,11 +123,27 @@ export function ProductCard({
               <path d="M5 12l5 5 9-10" />
             </svg>
           )}
-          {inCart ? 'Added' : 'Add to cart'}
-          <span className="sr-only">
-            {inCart ? `, add another ${product.title}` : `, ${product.title}`}
-          </span>
+          {buttonLabels[state](quantity)}
+          <span className="sr-only">, {product.title}</span>
         </button>
+
+        {status === 'error' && (
+          <p role="alert" className="mt-2 flex gap-1.5 text-xs">
+            <svg
+              aria-hidden="true"
+              className="mt-px size-3.5 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            Couldn't add to cart. Check your connection.
+          </p>
+        )}
       </footer>
     </article>
   )
