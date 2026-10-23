@@ -6,9 +6,22 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 
+import { HttpError } from './lib/api-client'
 import { router } from './router'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (error instanceof HttpError && error.status === 404) {
+          return false
+        }
+
+        return failureCount < 3
+      },
+    },
+  },
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

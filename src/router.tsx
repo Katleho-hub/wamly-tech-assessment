@@ -1,9 +1,11 @@
 import { createBrowserRouter } from 'react-router'
 
+import { App } from './app'
+
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <div className="text-3xl font-bold underline">Hello World</div>,
+    element: <App />,
     children: [],
   },
 ])
