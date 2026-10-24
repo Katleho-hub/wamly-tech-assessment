@@ -1,9 +1,13 @@
 import { useId } from 'react'
+import { Link, useLocation } from 'react-router'
 
 import { AlertIcon } from './components/icons/alert-icon'
 
 export function ErrorPage() {
   const headingId = useId()
+  // On / the product list is what crashed, so linking back to it would only
+  // crash again
+  const isHome = useLocation().pathname === '/'
 
   return (
     <section
@@ -27,6 +31,14 @@ export function ErrorPage() {
         >
           Try again
         </button>
+        {!isHome && (
+          <Link
+            to="/"
+            className="rounded-xl border border-card-border bg-white px-6 py-3 text-sm font-semibold text-ink"
+          >
+            Return to products
+          </Link>
+        )}
       </div>
     </section>
   )
