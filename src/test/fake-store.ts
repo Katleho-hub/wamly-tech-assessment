@@ -22,7 +22,8 @@ export const products: Product[] = [
 
 export const NEW_CART_ID = 11
 
-type Failure = { status: number } | 'network'
+// A body lets a 200 fail too, by returning data in an unexpected shape
+type Failure = { status: number; body?: unknown } | 'network'
 
 type Request = { method: string; path: string; body: unknown }
 
@@ -85,7 +86,7 @@ export function mockFakeStore() {
         const [{ failure }] = failures.splice(failureIndex, 1)
         return failure === 'network'
           ? Promise.reject(new TypeError('Failed to fetch'))
-          : respond(failure.status, undefined)
+          : respond(failure.status, failure.body)
       }
 
       if (method === 'GET' && path === '/products') {
