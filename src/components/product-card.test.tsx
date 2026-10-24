@@ -2,9 +2,9 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { type ComponentProps } from 'react'
 
+import { products } from '../test/fake-store'
+import { type CartActionCallbacks } from '../use-cart-flow'
 import { ProductCard } from './product-card'
-import { products } from './test/fake-store'
-import { type CartActionCallbacks } from './use-cart-flow'
 
 const product = products[0]
 

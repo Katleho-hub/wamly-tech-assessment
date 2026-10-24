@@ -1,12 +1,12 @@
 import { useId, useState } from 'react'
 
-import { type Product } from './api/fakestore/products'
-import { AlertIcon } from './components/icons/alert-icon'
-import { CheckIcon } from './components/icons/check-icon'
-import { SpinnerIcon } from './components/icons/spinner-icon'
-import { type CartActionCallbacks } from './use-cart-flow'
-import { formatPrice } from './utils/format-price'
-import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
+import { type Product } from '../api/fakestore/products'
+import { type CartActionCallbacks } from '../use-cart-flow'
+import { formatPrice } from '../utils/format-price'
+import { resizedImageSrcSet, resizedImageUrl } from '../utils/resized-image'
+import { AlertIcon } from './icons/alert-icon'
+import { CheckIcon } from './icons/check-icon'
+import { SpinnerIcon } from './icons/spinner-icon'
 
 type ButtonState = 'idle' | 'adding' | 'added' | 'error'
 
