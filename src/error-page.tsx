@@ -28,7 +28,7 @@ export function ErrorPage() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
           type="button"
-          className="rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
+          className="rounded-xl bg-brand-strong px-6 py-3 text-sm font-semibold text-white"
           onClick={() => window.location.reload()}
         >
           Try again

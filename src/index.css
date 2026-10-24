@@ -5,6 +5,10 @@
 
   /* Product card */
   --color-card-media: oklch(92.99% 0.0053 106.5);
+
+  /* Filled buttons. White text on --brand-color is 3.4:1, under WCAG AA's
+     4.5:1; this shade is 5.2:1. */
+  --color-brand-strong: oklch(56% 0.2 23);
 }
 
 @theme inline {

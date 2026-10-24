@@ -27,7 +27,7 @@ export function NotFound() {
 
       <Link
         to="/"
-        className="mt-8 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
+        className="mt-8 rounded-xl bg-brand-strong px-6 py-3 text-sm font-semibold text-white"
       >
         Return to products
       </Link>

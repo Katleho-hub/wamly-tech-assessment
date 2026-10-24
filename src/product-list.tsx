@@ -75,7 +75,7 @@ function ProductsError({ onRetry }: { onRetry: () => void }) {
       </h2>
       <button
         type="button"
-        className="rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
+        className="rounded-xl bg-brand-strong px-6 py-3 text-sm font-semibold text-white"
         onClick={onRetry}
       >
         Try again

@@ -254,7 +254,7 @@ function EmptyCart() {
       </p>
       <Link
         to="/"
-        className="mt-1 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
+        className="mt-1 rounded-xl bg-brand-strong px-6 py-3 text-sm font-semibold text-white"
       >
         Continue shopping
       </Link>

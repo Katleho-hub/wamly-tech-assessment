@@ -11,10 +11,10 @@ import { SpinnerIcon } from './icons/spinner-icon'
 type ButtonState = 'idle' | 'adding' | 'added' | 'error'
 
 const buttonStyles: Record<ButtonState, string> = {
-  idle: 'border-brand bg-brand text-white',
+  idle: 'border-brand-strong bg-brand-strong text-white',
   adding: 'border-transparent bg-brand/70 text-white',
   added: 'border-line bg-white text-body',
-  error: 'border-brand bg-brand text-white',
+  error: 'border-brand-strong bg-brand-strong text-white',
 }
 
 const buttonLabels: Record<ButtonState, (quantity: number) => ReactNode> = {
