@@ -57,6 +57,11 @@
   body {
     @apply bg-dot-grid;
   }
+
+  /* Tailwind v4 leaves buttons on the default cursor */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* Dotted grid background; pair with overflow-auto where the area scrolls */
