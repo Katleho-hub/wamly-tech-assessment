@@ -1,9 +1,12 @@
 import { useId, useState } from 'react'
 
 import { type Product } from './api/fakestore/products'
-import { formatPrice } from './lib/format-price'
-import { resizedImageSrcSet, resizedImageUrl } from './lib/image-url'
+import { AlertIcon } from './components/icons/alert-icon'
+import { CheckIcon } from './components/icons/check-icon'
+import { SpinnerIcon } from './components/icons/spinner-icon'
 import { type CartActionCallbacks } from './use-cart-flow'
+import { formatPrice } from './utils/format-price'
+import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
 
 type ButtonState = 'idle' | 'adding' | 'added' | 'error'
 
@@ -97,50 +100,16 @@ export function ProductCard({
           onClick={handleAddToCart}
         >
           {state === 'adding' && (
-            <svg
-              aria-hidden="true"
-              className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            >
-              <path d="M12 3a9 9 0 1 0 9 9" />
-            </svg>
+            <SpinnerIcon className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none" />
           )}
-          {state === 'added' && (
-            <svg
-              aria-hidden="true"
-              className="size-3.5 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12l5 5 9-10" />
-            </svg>
-          )}
+          {state === 'added' && <CheckIcon className="size-3.5 shrink-0" />}
           {buttonLabels[state](quantity)}
           <span className="sr-only">, {product.title}</span>
         </button>
 
         {status === 'error' && (
           <p role="alert" className="mt-2 flex gap-1.5 text-xs">
-            <svg
-              aria-hidden="true"
-              className="mt-px size-3.5 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 8v4M12 16h.01" />
-            </svg>
+            <AlertIcon className="mt-px size-3.5 shrink-0" />
             Couldn't add to cart. Check your connection.
           </p>
         )}

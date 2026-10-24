@@ -21,9 +21,6 @@ export function ProductList() {
 
   return (
     <section aria-labelledby={headingId} className="w-full">
-      <h2 id={headingId} className="my-4 text-3xl font-bold">
-        Products
-      </h2>
       <div className="mx-auto max-w-5xl">
         <ul
           aria-busy={!productsQuery.data}
