@@ -6,7 +6,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 
-import { CartIdProvider } from './cart-id-provider'
+import { CartIdProvider } from './context/cart-id-provider'
 import { HttpError } from './lib/api-client'
 import { router } from './router'
 

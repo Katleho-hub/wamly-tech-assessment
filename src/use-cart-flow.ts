@@ -7,7 +7,7 @@ import {
   useCreateCart,
   useUpdateCart,
 } from './api/fakestore/cart'
-import { useCartId } from './cart-id-context'
+import { useCartId } from './context/cart-id-context'
 
 export type CartActionCallbacks = {
   onSuccess?: () => void

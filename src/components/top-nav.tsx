@@ -1,7 +1,7 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 
 import { useCart } from '../api/fakestore/cart'
-import { useCartId } from '../cart-id-context'
+import { useCartId } from '../context/cart-id-context'
 import { countItems } from '../utils/cart'
 import { CartIcon } from './icons/cart-icon'
 import { ChevronLeftIcon } from './icons/chevron-left-icon'
