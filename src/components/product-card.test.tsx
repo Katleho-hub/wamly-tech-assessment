@@ -32,9 +32,10 @@ const button = () => screen.getByRole('button')
 const image = () => document.querySelector('img')
 
 describe('ProductCard', () => {
-  it('shows the title and formatted price', () => {
+  it('shows the category, title and formatted price', () => {
     setup()
 
+    expect(screen.getByText(product.category)).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: product.title }),
     ).toBeInTheDocument()

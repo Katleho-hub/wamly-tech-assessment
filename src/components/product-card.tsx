@@ -80,6 +80,9 @@ export function ProductCard({
       </figure>
 
       <header className="flex flex-1 flex-col gap-0.5 px-2.5 pt-2.5">
+        <p className="text-[11px] font-semibold tracking-wide text-ink/60 uppercase">
+          {product.category}
+        </p>
         <h3
           id={titleId}
           className="text-sm font-semibold"
