@@ -4,9 +4,18 @@
   --font-sans: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
 
   /* Product card */
-  --color-ink: oklch(23.85% 0.0037 106.68);
-  --color-card-border: oklch(85.34% 0.0055 106.51);
   --color-card-media: oklch(92.99% 0.0053 106.5);
+}
+
+@theme inline {
+  --color-navy: var(--blue);
+  --color-navy-dark: var(--blue-dark);
+  --color-brand: var(--brand-color);
+  --color-body: var(--primary-text);
+  --color-muted: var(--secondary-text);
+  --color-line: var(--utility-light-grey);
+  --color-tag: var(--light-gray);
+  --color-amber: var(--orange);
 }
 
 :root {

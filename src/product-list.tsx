@@ -66,14 +66,16 @@ function ProductsError({ onRetry }: { onRetry: () => void }) {
       role="alert"
       className="flex flex-col items-center gap-3 py-16 text-center"
     >
-      <AlertIcon className="size-28 text-(--brand-color)" strokeWidth="1.5" />
+      <span className="flex size-16 items-center justify-center rounded-xl bg-amber/15 text-amber">
+        <AlertIcon className="size-8" />
+      </span>
 
-      <h2 className="mt-10 text-xl font-semibold">
+      <h2 className="mt-3 text-xl font-bold text-navy">
         Couldn't load products. Check your connection.
       </h2>
       <button
         type="button"
-        className="rounded-xl bg-(--brand-color) px-6 py-3 text-sm font-semibold text-white"
+        className="rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
         onClick={onRetry}
       >
         Try again

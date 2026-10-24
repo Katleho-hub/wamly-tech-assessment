@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { type ReactNode, useId, useState } from 'react'
 
 import { type Product } from '../api/fakestore/products'
 import { type CartActionCallbacks } from '../use-cart-flow'
@@ -11,16 +11,21 @@ import { SpinnerIcon } from './icons/spinner-icon'
 type ButtonState = 'idle' | 'adding' | 'added' | 'error'
 
 const buttonStyles: Record<ButtonState, string> = {
-  idle: 'border-ink bg-ink text-white',
-  adding: 'border-transparent bg-ink/70 text-white',
-  added: 'border-ink bg-white text-ink',
-  error: 'border-ink bg-ink text-white',
+  idle: 'border-brand bg-brand text-white',
+  adding: 'border-transparent bg-brand/70 text-white',
+  added: 'border-line bg-white text-body',
+  error: 'border-brand bg-brand text-white',
 }
 
-const buttonLabels: Record<ButtonState, (quantity: number) => string> = {
+const buttonLabels: Record<ButtonState, (quantity: number) => ReactNode> = {
   idle: () => 'Add to cart',
   adding: () => 'Adding...',
-  added: (quantity) => `Added (${quantity}) · Add another`,
+  added: (quantity) => (
+    <>
+      <span className="whitespace-nowrap">Added ({quantity}) ·</span>{' '}
+      <span className="whitespace-nowrap">Add another</span>
+    </>
+  ),
   error: () => 'Try again',
 }
 
@@ -59,9 +64,9 @@ export function ProductCard({
   return (
     <article
       aria-labelledby={titleId}
-      className="flex h-full flex-col overflow-hidden rounded-[10px] border border-card-border bg-white text-ink"
+      className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-body"
     >
-      <figure className="pulse flex aspect-square max-h-44 items-center justify-center border-b border-card-border bg-card-media p-4 md:aspect-4/3 md:max-h-40">
+      <figure className="pulse flex aspect-square max-h-44 items-center justify-center border-b border-line bg-card-media p-4 md:aspect-4/3 md:max-h-40">
         <img
           src={resizedImageUrl(product.image, 216)}
           // 1x/2x/3x of the 144px mobile max and 1x/2x of the 216px desktop max
@@ -79,26 +84,26 @@ export function ProductCard({
         />
       </figure>
 
-      <header className="flex flex-1 flex-col gap-0.5 px-2.5 pt-2.5">
-        <p className="text-[11px] font-semibold tracking-wide text-ink/60 uppercase">
+      <header className="flex flex-1 flex-col gap-0.5 px-3 pt-3">
+        <p className="mb-1 self-start rounded-full border border-line bg-tag px-2 py-0.5 text-[11px] leading-4 font-medium text-muted capitalize">
           {product.category}
         </p>
         <h3
           id={titleId}
-          className="text-sm font-semibold"
+          className="text-sm font-semibold text-navy"
           title={product.title}
         >
           {product.title}
         </h3>
-        <p className="text-sm">
+        <p className="mt-auto text-sm">
           <data value={product.price}>{formatPrice(product.price)}</data>
         </p>
       </header>
 
-      <footer className="p-2.5">
+      <footer className="p-3">
         <button
           type="button"
-          className={`flex h-11 w-full items-center justify-center gap-1.5 rounded-lg border px-1.5 text-center text-[13px] leading-tight font-semibold disabled:cursor-not-allowed ${buttonStyles[state]}`}
+          className={`flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border px-1.5 text-center text-[13px] leading-tight font-semibold disabled:cursor-not-allowed ${buttonStyles[state]}`}
           disabled={disabled || status === 'adding'}
           onClick={handleAddToCart}
         >
@@ -106,7 +111,7 @@ export function ProductCard({
             <SpinnerIcon className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none" />
           )}
           {state === 'added' && <CheckIcon className="size-3.5 shrink-0" />}
-          {buttonLabels[state](quantity)}
+          <span>{buttonLabels[state](quantity)}</span>
           <span className="sr-only">, {product.title}</span>
         </button>
 
@@ -126,12 +131,14 @@ export function ProductCardSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="flex h-full animate-pulse flex-col overflow-hidden rounded-[10px] border border-card-border bg-white motion-reduce:animate-none"
+      className="flex h-full animate-pulse flex-col overflow-hidden rounded-2xl border border-line bg-white motion-reduce:animate-none"
     >
-      <div className="aspect-square max-h-44 border-b border-card-border bg-card-media md:aspect-4/3 md:max-h-40" />
+      <div className="aspect-square max-h-44 border-b border-line bg-card-media md:aspect-4/3 md:max-h-40" />
 
-      <div className="flex flex-1 flex-col gap-0.5 px-2.5 pt-2.5">
-        {/* Each row is one text-sm line tall, like the title and price */}
+      <div className="flex flex-1 flex-col gap-0.5 px-3 pt-3">
+        {/* The category tag, then rows one text-sm line tall, like the title
+            and price */}
+        <div className="mb-1 h-5.5 w-20 rounded-full bg-card-media" />
         <div className="flex h-5 items-center">
           <div className="h-3 w-3/4 rounded bg-card-media" />
         </div>
@@ -140,8 +147,8 @@ export function ProductCardSkeleton() {
         </div>
       </div>
 
-      <div className="p-2.5">
-        <div className="h-11 rounded-lg bg-card-media" />
+      <div className="p-3">
+        <div className="h-11 rounded-xl bg-card-media" />
       </div>
     </div>
   )

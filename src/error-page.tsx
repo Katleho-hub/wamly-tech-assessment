@@ -14,19 +14,21 @@ export function ErrorPage() {
       aria-labelledby={headingId}
       className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center"
     >
-      <AlertIcon className="size-28 text-(--brand-color)" strokeWidth="1.5" />
+      <span className="flex size-16 items-center justify-center rounded-xl bg-amber/15 text-amber">
+        <AlertIcon className="size-8" />
+      </span>
 
-      <h2 id={headingId} className="mt-10 text-xl font-semibold">
+      <h2 id={headingId} className="mt-6 text-xl font-bold text-navy">
         Sorry, something went wrong.
       </h2>
-      <p className="mt-3 text-sm leading-relaxed text-(--secondary-text)">
+      <p className="mt-3 text-sm leading-relaxed text-muted">
         Something stopped this page from loading.
       </p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
           type="button"
-          className="rounded-xl bg-(--brand-color) px-6 py-3 text-sm font-semibold text-white"
+          className="rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
           onClick={() => window.location.reload()}
         >
           Try again
@@ -34,7 +36,7 @@ export function ErrorPage() {
         {!isHome && (
           <Link
             to="/"
-            className="rounded-xl border border-card-border bg-white px-6 py-3 text-sm font-semibold text-ink"
+            className="rounded-xl border border-line bg-white px-6 py-3 text-sm font-semibold text-body"
           >
             Return to products
           </Link>

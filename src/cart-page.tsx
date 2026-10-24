@@ -12,7 +12,7 @@ import { countItems } from './utils/cart'
 import { formatPrice } from './utils/format-price'
 import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
 
-const panel = 'rounded-[10px] border border-card-border bg-white text-ink'
+const panel = 'rounded-2xl border border-line bg-white text-body'
 
 function itemsLabel(count: number) {
   return `${count} ${count === 1 ? 'item' : 'items'}`
@@ -36,16 +36,16 @@ export function CartPage() {
   )
 
   return (
-    <section aria-labelledby={headingId} className="w-full max-w-4xl">
-      <h2 id={headingId} className="mt-3 mb-4 text-2xl font-bold">
+    <section aria-labelledby={headingId} className="w-full">
+      <h2 id={headingId} className="mt-3 mb-4 text-2xl font-bold text-navy">
         Your cart{' '}
-        <span className="text-base font-normal text-ink/60">
+        <span className="text-base font-normal text-muted">
           ({itemsLabel(itemCount)})
         </span>
       </h2>
 
       {error && (
-        <p role="alert" className="mb-3 text-sm text-red-700">
+        <p role="alert" className="mb-3 text-sm text-body">
           Couldn't update your cart. Check your connection.
         </p>
       )}
@@ -54,13 +54,13 @@ export function CartPage() {
         <div className={panel}>
           <div
             aria-hidden="true"
-            className="flex justify-between border-b border-card-border px-4 py-2.5 text-[11px] font-semibold tracking-wide uppercase"
+            className="flex justify-between border-b border-line px-4 py-2.5 text-[11px] font-semibold tracking-wide text-muted uppercase"
           >
             <span>Product</span>
             <span>Total</span>
           </div>
 
-          <ul className="divide-y divide-card-border">
+          <ul className="divide-y divide-line">
             {cart.products.map((item) => (
               <CartLine
                 key={item.productId}
@@ -103,7 +103,7 @@ function CartLine({
 
   return (
     <li className="flex gap-3 p-4">
-      <div className="flex size-16 shrink-0 items-center justify-center rounded-md bg-card-media p-1.5">
+      <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-card-media p-1.5">
         {product && (
           <img
             src={resizedImageUrl(product.image, 64)}
@@ -121,7 +121,9 @@ function CartLine({
 
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex justify-between gap-3">
-          <h3 className="line-clamp-2 text-sm font-semibold">{title}</h3>
+          <h3 className="line-clamp-2 text-sm font-semibold text-navy">
+            {title}
+          </h3>
           {product && (
             <p className="shrink-0 text-sm font-semibold">
               {formatPrice(product.price * item.quantity)}
@@ -130,13 +132,13 @@ function CartLine({
         </div>
 
         {product && (
-          <p className="text-xs text-ink/70">
+          <p className="text-xs text-muted">
             {formatPrice(product.price)} each
           </p>
         )}
 
         <div className="mt-1 flex items-center gap-3">
-          <div className="flex items-center rounded-md border border-card-border">
+          <div className="flex items-center rounded-xl border border-line">
             <StepperButton
               label={`Decrease quantity, ${title}`}
               disabled={disabled}
@@ -159,7 +161,7 @@ function CartLine({
 
           <button
             type="button"
-            className="flex items-center gap-1 text-xs underline disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 text-xs text-muted underline hover:text-body disabled:cursor-not-allowed disabled:opacity-50"
             disabled={disabled}
             onClick={onRemove}
           >
@@ -208,8 +210,8 @@ function OrderSummary({
   const headingId = useId()
 
   return (
-    <aside aria-labelledby={headingId} className={`${panel} p-4 text-sm`}>
-      <h3 id={headingId} className="mb-3 font-semibold">
+    <aside aria-labelledby={headingId} className={`${panel} p-5 text-sm`}>
+      <h3 id={headingId} className="mb-3 font-bold text-navy">
         Order summary
       </h3>
 
@@ -220,14 +222,13 @@ function OrderSummary({
         </div>
         <div className="flex justify-between gap-3">
           <dt>Delivery</dt>
-          <dd className="text-ink/70">Calculated at checkout</dd>
+          <dd className="text-muted">Calculated at checkout</dd>
         </div>
-        <div className="mt-2 flex justify-between gap-3 border-t border-card-border pt-3 text-base font-bold">
+        <div className="mt-2 flex justify-between gap-3 border-t border-line pt-3 text-base font-bold">
           <dt>Total</dt>
           <dd>{formatPrice(subtotal)}</dd>
         </div>
       </dl>
-      <p className="mt-1 text-xs text-ink/70">Incl. VAT</p>
     </aside>
   )
 }
@@ -240,20 +241,20 @@ function EmptyCart() {
       aria-labelledby={headingId}
       className={`${panel} my-6 flex w-full max-w-md flex-col items-center gap-3 px-6 py-10 text-center`}
     >
-      <div className="flex size-14 items-center justify-center rounded-full bg-card-media">
-        <CartIcon className="size-6" strokeWidth="1.8" />
+      <div className="flex size-16 items-center justify-center rounded-xl bg-amber/15 text-amber">
+        <CartIcon className="size-8" strokeWidth="1.8" />
       </div>
 
-      <h2 id={headingId} className="text-xl font-bold">
+      <h2 id={headingId} className="mt-2 text-xl font-bold text-navy">
         Your cart is empty
       </h2>
-      <p className="max-w-xs text-xs text-ink/70">
+      <p className="max-w-xs text-xs text-muted">
         Looks like you haven't added anything yet. Browse the shop and items you
         add will show up here.
       </p>
       <Link
         to="/"
-        className="mt-1 rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-white"
+        className="mt-1 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white"
       >
         Continue shopping
       </Link>

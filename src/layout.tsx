@@ -4,7 +4,7 @@ import { TopNav } from './components/top-nav'
 
 export function Layout() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-355 flex-col items-center gap-y-4 px-4 py-2">
+    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center gap-y-4 px-4 py-2">
       <TopNav />
 
       <main className="flex w-full flex-col items-center">

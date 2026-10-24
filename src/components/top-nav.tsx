@@ -33,7 +33,7 @@ export function TopNav() {
           <button
             type="button"
             aria-label="Back"
-            className="flex size-10 items-center justify-center rounded-lg text-ink hover:bg-card-media"
+            className="flex size-10 items-center justify-center rounded-xl text-body hover:bg-card-media"
             onClick={goBack}
           >
             <ChevronLeftIcon className="size-5" />
@@ -49,7 +49,7 @@ export function TopNav() {
 
         <NavLink
           to="/cart"
-          className="ml-auto flex items-center gap-1.5 rounded-lg border border-card-border bg-white px-3 py-2 text-sm font-semibold text-ink aria-[current=page]:border-ink"
+          className="ml-auto flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold text-body aria-[current=page]:border-navy aria-[current=page]:text-navy"
         >
           <CartIcon className="size-4" />
           Cart ({countItems(cart)})
