@@ -41,26 +41,44 @@ describe('add to cart', () => {
       'false',
     )
   })
+
+  it('shows an error when the products fail to load, and recovers on retry', async () => {
+    const store = mockFakeStore()
+    store.failNext('GET', PRODUCTS, { status: 500 })
+    const { user } = renderApp()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't load products",
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+
+    expect(await addButton('Backpack')).toBeEnabled()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('creates a cart on the first add and reflects it on the card and in the cart', async () => {
     const store = mockFakeStore()
     const { user } = renderApp()
-    expect(screen.getByText(/No cart yet/)).toBeInTheDocument()
+    expect(await findCartLink(0)).toBeInTheDocument()
 
     await user.click(await addButton('Backpack'))
 
-    expect(
-      await screen.findByRole('heading', { name: `Cart #${NEW_CART_ID}` }),
-    ).toBeInTheDocument()
-    expect(await addButton('Backpack')).toHaveTextContent(
-      'Added (1) · Add another',
-    )
+    expect(await findAddedButton('Backpack', 1)).toBeInTheDocument()
     expect(store.requests('POST', CREATE_CART)).toEqual([
       expect.objectContaining({
         body: { userId: 1, products: [{ productId: 1, quantity: 1 }] },
       }),
     ])
+
+    await user.click(await findCartLink(1))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Your cart (1 item)' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Backpack' }),
+    ).toBeInTheDocument()
   })
 
   it('adds a second product to the same cart', async () => {
@@ -68,14 +86,11 @@ describe('add to cart', () => {
     const { user } = renderApp()
 
     await user.click(await addButton('Backpack'))
-    await findCartHeading()
+    await findCartLink(1)
     await user.click(await addButton('Slim Fit T-Shirt'))
 
-    expect(
-      await screen.findByRole('button', {
-        name: /^Added \(1\) · Add another\s*, Slim Fit T-Shirt$/,
-      }),
-    ).toBeInTheDocument()
+    expect(await findAddedButton('Slim Fit T-Shirt', 1)).toBeInTheDocument()
+    expect(await findCartLink(2)).toBeInTheDocument()
     expect(store.requests('POST', CREATE_CART)).toHaveLength(1)
     expect(store.requests('PUT', UPDATE_CART)).toEqual([
       {
@@ -97,12 +112,11 @@ describe('add to cart', () => {
     const { user } = renderApp()
 
     await user.click(await addButton('Backpack'))
-    await findCartHeading()
+    await findCartLink(1)
     await user.click(await addButton('Backpack'))
 
-    expect(
-      await screen.findByRole('button', { name: /^Added \(2\).*, Backpack$/ }),
-    ).toBeInTheDocument()
+    expect(await findAddedButton('Backpack', 2)).toBeInTheDocument()
+    expect(await findCartLink(2)).toBeInTheDocument()
   })
 
   it('disables every add button while a request is in flight', async () => {
@@ -120,7 +134,7 @@ describe('add to cart', () => {
 
     release()
 
-    await findCartHeading()
+    await findCartLink(1)
     expect(backpack).toBeEnabled()
     expect(shirt).toBeEnabled()
   })
@@ -141,7 +155,7 @@ describe('add to cart', () => {
 
     await user.click(await addButton('Backpack'))
 
-    expect(await findCartHeading()).toBeInTheDocument()
+    expect(await findAddedButton('Backpack', 1)).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
@@ -156,46 +170,99 @@ describe('add to cart', () => {
 
     await user.click(await addButton('Backpack'))
 
-    expect(await findCartHeading()).toBeInTheDocument()
+    expect(await findAddedButton('Backpack', 1)).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
 
-describe('cart edits reflected on the cards', () => {
-  // The "+", "−" and "Delete cart" buttons only exist in the cart
-  async function renderWithBackpackInCart() {
-    mockFakeStore()
+describe('cart page', () => {
+  // Adds the backpack on the products page, then opens the cart page
+  async function renderCartWithBackpack() {
+    const store = mockFakeStore()
     const { user } = renderApp()
     await user.click(await addButton('Backpack'))
-    await findCartHeading()
-    return { user }
+    await user.click(await findCartLink(1))
+    await screen.findByRole('heading', { name: /^Your cart/ })
+
+    async function backToProducts() {
+      await user.click(screen.getByRole('button', { name: 'Back' }))
+    }
+
+    return { store, user, backToProducts }
   }
 
-  it('updates the card quantity from the cart "+" button', async () => {
-    const { user } = await renderWithBackpackInCart()
+  const increase = () =>
+    screen.getByRole('button', { name: 'Increase quantity, Backpack' })
+  const decrease = () =>
+    screen.getByRole('button', { name: 'Decrease quantity, Backpack' })
 
-    await user.click(screen.getByRole('button', { name: '+' }))
+  it('shows the line total and the order summary', async () => {
+    const { user } = await renderCartWithBackpack()
+
+    await user.click(increase())
 
     expect(
-      await screen.findByRole('button', { name: /^Added \(2\).*, Backpack$/ }),
+      await screen.findByRole('heading', { name: 'Your cart (2 items)' }),
     ).toBeInTheDocument()
+    const summary = screen.getByRole('complementary', {
+      name: 'Order summary',
+    })
+    expect(within(summary).getByText('Subtotal (2 items)')).toBeInTheDocument()
+    // 2 × 109.95
+    expect(within(summary).getAllByText(/219[.,]90/)).toHaveLength(2)
+    expect(screen.getByText(/109[.,]95 each/)).toBeInTheDocument()
   })
 
-  it('resets the card when the item is removed with "−"', async () => {
-    const { user } = await renderWithBackpackInCart()
+  it('updates the card quantity from the cart "+" button', async () => {
+    const { user, backToProducts } = await renderCartWithBackpack()
 
-    await user.click(screen.getByRole('button', { name: '−' }))
+    await user.click(increase())
 
-    expect(await screen.findByText('Cart is empty')).toBeInTheDocument()
+    expect(await findCartLink(2)).toBeInTheDocument()
+    await backToProducts()
+    expect(await findAddedButton('Backpack', 2)).toBeInTheDocument()
+  })
+
+  it('empties the cart when the last unit is removed with "−"', async () => {
+    const { user, backToProducts } = await renderCartWithBackpack()
+
+    await user.click(decrease())
+
+    expect(
+      await screen.findByRole('heading', { name: 'Your cart is empty' }),
+    ).toBeInTheDocument()
+    expect(await findCartLink(0)).toBeInTheDocument()
+    await backToProducts()
     expect(await addButton('Backpack')).toHaveTextContent('Add to cart')
   })
 
-  it('resets the cards when the cart is deleted', async () => {
-    const { user } = await renderWithBackpackInCart()
+  it('removes every unit of a product with "Remove"', async () => {
+    const { store, user } = await renderCartWithBackpack()
+    await user.click(increase())
+    await findCartLink(2)
 
-    await user.click(screen.getByRole('button', { name: 'Delete cart' }))
+    await user.click(
+      screen.getByRole('button', { name: /^Remove\s*, Backpack$/ }),
+    )
 
-    expect(await screen.findByText(/No cart yet/)).toBeInTheDocument()
-    expect(await addButton('Backpack')).toHaveTextContent('Add to cart')
+    expect(
+      await screen.findByRole('heading', { name: 'Your cart is empty' }),
+    ).toBeInTheDocument()
+    expect(store.requests('PUT', UPDATE_CART).at(-1)?.body).toEqual({
+      userId: 1,
+      products: [],
+    })
+  })
+
+  it('shows an error when an update fails', async () => {
+    const { store, user } = await renderCartWithBackpack()
+    store.failNext('PUT', UPDATE_CART, { status: 500 })
+
+    await user.click(increase())
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't update your cart",
+    )
+    expect(await findCartLink(1)).toBeInTheDocument()
   })
 })
