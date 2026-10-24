@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 
-import { CartIdProvider } from '../cart-id-provider'
+import { CartIdProvider } from '../context/cart-id-provider'
 import { routes } from '../router'
 
 export function renderApp(path = '/') {
