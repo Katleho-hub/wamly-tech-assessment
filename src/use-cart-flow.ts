@@ -5,7 +5,6 @@ import {
   cartMutationKey,
   useCart,
   useCreateCart,
-  useDeleteCart,
   useUpdateCart,
 } from './api/fakestore/cart'
 import { useCartId } from './cart-id-context'
@@ -23,7 +22,6 @@ export function useCartFlow() {
   const { data: cart } = useCart(cartId)
   const createCart = useCreateCart()
   const updateCart = useUpdateCart()
-  const deleteCart = useDeleteCart()
 
   // Counts cart mutations from every component, not just this hook call
   const busy = useIsMutating({ mutationKey: cartMutationKey }) > 0
@@ -86,12 +84,10 @@ export function useCartFlow() {
     })
   }
 
-  function removeCart() {
+  function removeProduct(productId: number) {
     if (!cart) return
 
-    deleteCart.mutate(cart.id, {
-      onSuccess: () => setCartId(null),
-    })
+    saveProducts(cart.products.filter((p) => p.productId !== productId))
   }
 
   return {
@@ -100,6 +96,6 @@ export function useCartFlow() {
     error,
     addProduct,
     changeQuantity,
-    removeCart,
+    removeProduct,
   }
 }

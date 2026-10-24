@@ -1,22 +1,25 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createMemoryRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
 
-import { App } from '../app'
 import { CartIdProvider } from '../cart-id-provider'
+import { routes } from '../router'
 
-export function renderApp() {
+export function renderApp(path = '/') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
+  const router = createMemoryRouter(routes, { initialEntries: [path] })
 
   render(
     <QueryClientProvider client={queryClient}>
       <CartIdProvider>
-        <App />
+        <RouterProvider router={router} />
       </CartIdProvider>
     </QueryClientProvider>,
   )
 
-  return { user: userEvent.setup() }
+  return { user: userEvent.setup(), router }
 }

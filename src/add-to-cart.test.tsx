@@ -1,8 +1,9 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
 import { mockFakeStore, NEW_CART_ID } from './test/fake-store'
 import { renderApp } from './test/render-app'
 
+const PRODUCTS = /^\/products$/
 const CREATE_CART = /^\/carts$/
 const UPDATE_CART = /^\/carts\/\d+$/
 
@@ -11,8 +12,15 @@ function addButton(title: string) {
   return screen.findByRole('button', { name: new RegExp(`, ${title}$`) })
 }
 
-function findCartHeading() {
-  return screen.findByRole('heading', { name: /Cart #/ })
+function findAddedButton(title: string, quantity: number) {
+  return screen.findByRole('button', {
+    name: new RegExp(`^Added \\(${quantity}\\).*, ${title}$`),
+  })
+}
+
+// The header's cart link shows the total quantity once the cart is saved
+function findCartLink(count: number) {
+  return screen.findByRole('link', { name: `Cart (${count})` })
 }
 
 describe('add to cart', () => {
@@ -20,11 +28,19 @@ describe('add to cart', () => {
     mockFakeStore()
     renderApp()
 
-    expect(screen.getByRole('list', { busy: true })).toBeInTheDocument()
+    const products = screen.getByRole('region', { name: 'Products' })
+    expect(within(products).getByRole('list')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    )
 
     expect(await addButton('Backpack')).toBeEnabled()
     expect(await addButton('Slim Fit T-Shirt')).toBeEnabled()
-    expect(screen.getByRole('list', { busy: false })).toBeInTheDocument()
+    expect(within(products).getByRole('list')).toHaveAttribute(
+      'aria-busy',
+      'false',
+    )
+  })
   })
 
   it('creates a cart on the first add and reflects it on the card and in the cart', async () => {
