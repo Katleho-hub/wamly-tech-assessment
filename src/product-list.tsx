@@ -22,6 +22,10 @@ export function ProductList() {
 
   return (
     <section aria-labelledby={headingId} className="w-full">
+      <h2 id={headingId} className="sr-only">
+        Products
+      </h2>
+
       <div className="mx-auto max-w-5xl">
         {productsQuery.isError && !productsQuery.data ? (
           <ProductsError onRetry={() => void productsQuery.refetch()} />
@@ -57,13 +61,14 @@ export function ProductList() {
 }
 
 function ProductsError({ onRetry }: { onRetry: () => void }) {
-  const headingId = useId()
-
   return (
-    <div className="flex flex-col items-center gap-3 py-16 text-center">
+    <div
+      role="alert"
+      className="flex flex-col items-center gap-3 py-16 text-center"
+    >
       <AlertIcon className="size-28 text-(--brand-color)" strokeWidth="1.5" />
 
-      <h2 id={headingId} className="mt-10 text-xl font-semibold">
+      <h2 className="mt-10 text-xl font-semibold">
         Couldn't load products. Check your connection.
       </h2>
       <button
