@@ -2,12 +2,12 @@ import { type ReactNode, useId } from 'react'
 import { Link } from 'react-router'
 
 import { type CartItem } from './api/fakestore/cart'
-import { type Product, useProducts } from './api/fakestore/products'
+import { type Product, useProductsQuery } from './api/fakestore/products'
 import { CartIcon } from './components/icons/cart-icon'
 import { MinusIcon } from './components/icons/minus-icon'
 import { PlusIcon } from './components/icons/plus-icon'
 import { TrashIcon } from './components/icons/trash-icon'
-import { useCartFlow } from './use-cart-flow'
+import { useCart } from './hooks/use-cart'
 import { countItems } from './utils/cart'
 import { formatPrice } from './utils/format-price'
 import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
@@ -18,10 +18,10 @@ function itemsLabel(count: number) {
   return `${count} ${count === 1 ? 'item' : 'items'}`
 }
 
-export function CartPage() {
+export default function CartPage() {
   const headingId = useId()
-  const { data: products } = useProducts()
-  const { cart, busy, error, changeQuantity, removeProduct } = useCartFlow()
+  const { data: products } = useProductsQuery()
+  const { cart, busy, error, changeQuantity, removeProduct } = useCart()
 
   if (!cart || cart.products.length === 0) {
     return <EmptyCart />

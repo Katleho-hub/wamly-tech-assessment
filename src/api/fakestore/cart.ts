@@ -48,7 +48,7 @@ function deleteCart(id: number) {
 // Shared by all cart mutations so callers can track them together
 export const cartMutationKey = ['carts']
 
-export function useCart(id: number | null) {
+export function useCartQuery(id: number | null) {
   const isIdValid = id != null
 
   return useQuery({
@@ -65,7 +65,7 @@ export function useCart(id: number | null) {
   })
 }
 
-export function useCreateCart() {
+export function useCreateCartMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -77,7 +77,7 @@ export function useCreateCart() {
   })
 }
 
-export function useUpdateCart() {
+export function useUpdateCartMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -89,7 +89,7 @@ export function useUpdateCart() {
   })
 }
 
-export function useDeleteCart() {
+export function useDeleteCartMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({

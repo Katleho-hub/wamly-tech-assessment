@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 import { MissingPageIcon } from './components/icons/missing-page-icon'
 
-export function NotFound() {
+export default function NotFoundPage() {
   const headingId = useId()
 
   return (

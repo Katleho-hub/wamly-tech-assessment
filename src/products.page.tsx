@@ -1,9 +1,9 @@
 import { useId } from 'react'
 
-import { useProducts } from './api/fakestore/products'
+import { useProductsQuery } from './api/fakestore/products'
 import { AlertIcon } from './components/icons/alert-icon'
 import { ProductCard, ProductCardSkeleton } from './components/product-card'
-import { useCartFlow } from './use-cart-flow'
+import { useCart } from './hooks/use-cart'
 
 // fakestore always returns 20 products; matching that keeps content below
 // the grid from shifting when they arrive
@@ -11,10 +11,10 @@ const SKELETON_COUNT = 20
 // Cards above the fold: two rows on mobile, the first row on desktop
 const PRIORITY_COUNT = 4
 
-export function ProductList() {
+export default function ProductsPage() {
   const headingId = useId()
-  const productsQuery = useProducts()
-  const { cart, addProduct, busy } = useCartFlow()
+  const productsQuery = useProductsQuery()
+  const { cart, addProduct, busy } = useCart()
 
   const cartQuantities = new Map(
     cart?.products.map((item) => [item.productId, item.quantity]),

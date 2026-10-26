@@ -1,6 +1,6 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 
-import { useCart } from '../api/fakestore/cart'
+import { useCartQuery } from '../api/fakestore/cart'
 import { useCartId } from '../context/cart-id-context'
 import { countItems } from '../utils/cart'
 import { CartIcon } from './icons/cart-icon'
@@ -11,7 +11,7 @@ export function TopNav() {
   const location = useLocation()
   const navigate = useNavigate()
   const { cartId } = useCartId()
-  const { data: cart } = useCart(cartId)
+  const { data: cart } = useCartQuery(cartId)
 
   const isHome = location.pathname === '/'
   // 'default' marks the page the app was opened on, so there's no in-app
