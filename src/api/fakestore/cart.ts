@@ -61,6 +61,7 @@ export function useCart(id: number | null) {
      * server's unmodified (or missing) cart would overwrite it
      */
     staleTime: 'static',
+    gcTime: Infinity,
   })
 }
 
