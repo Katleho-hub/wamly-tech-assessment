@@ -8,6 +8,9 @@ import { CartIdProvider } from '../context/cart-id-provider'
 import { routes } from '../router'
 
 export function renderApp(path = '/') {
+  // The cart id is persisted, so don't let one test's cart leak into the next
+  localStorage.clear()
+
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
