@@ -66,7 +66,7 @@ export function CartPage() {
             className="flex justify-between border-b border-line px-4 py-2.5 text-[11px] font-semibold tracking-wide text-muted uppercase"
           >
             <span>Product</span>
-            <span>Total</span>
+            <span>Totals</span>
           </div>
 
           <ul
