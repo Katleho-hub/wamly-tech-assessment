@@ -1,7 +1,7 @@
 import { type ReactNode, useId, useState } from 'react'
 
 import { type Product } from '../api/fakestore/products'
-import { type CartActionCallbacks } from '../use-cart-flow'
+import type { CartActionCallbacks } from '../hooks/use-cart'
 import { formatPrice } from '../utils/format-price'
 import { AlertIcon } from './icons/alert-icon'
 import { CheckIcon } from './icons/check-icon'

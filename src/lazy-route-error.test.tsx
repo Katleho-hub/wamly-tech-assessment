@@ -4,7 +4,7 @@ import { mockFakeStore } from './test/fake-store'
 import { renderApp } from './test/render-app'
 
 // Importing the cart page fails, like its chunk request does when offline
-jest.mock('./cart-page', () => {
+jest.mock('./cart.page', () => {
   throw new TypeError('Failed to fetch dynamically imported module')
 })
 

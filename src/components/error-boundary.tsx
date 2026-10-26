@@ -1,9 +1,9 @@
 import { useId } from 'react'
 import { Link, useLocation } from 'react-router'
 
-import { AlertIcon } from './components/icons/alert-icon'
+import { AlertIcon } from './icons/alert-icon'
 
-export function ErrorPage() {
+export function ErrorBoundary() {
   const headingId = useId()
   // On / the product list is what crashed, so linking back to it would only
   // crash again
