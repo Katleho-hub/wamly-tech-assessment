@@ -1,7 +1,7 @@
 import './index.css'
 
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
-import { defaultShouldDehydrateQuery } from '@tanstack/react-query'
+import { defaultShouldDehydrateQuery, QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { StrictMode } from 'react'
@@ -9,8 +9,22 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 
 import { CartIdProvider } from './context/cart-id-provider'
-import queryClient from './lib/query-client'
+import { HttpError } from './lib/api-client'
 import { router } from './router'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (error instanceof HttpError && error.status === 404) {
+          return false
+        }
+
+        return failureCount < 3
+      },
+    },
+  },
+})
 
 const persister = createAsyncStoragePersister({
   storage: window.localStorage,
