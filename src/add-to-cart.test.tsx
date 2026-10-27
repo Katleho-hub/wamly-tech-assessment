@@ -30,17 +30,15 @@ function findCartLink(count: number) {
 
 describe('add to cart', () => {
   it('shows skeletons, then the products', async () => {
-    const store = mockFakeStore()
-    const release = store.holdNext('GET', PRODUCTS)
+    mockFakeStore()
     renderApp()
 
-    const products = await screen.findByRole('region', { name: 'Products' })
+    const products = screen.getByRole('region', { name: 'Products' })
     expect(within(products).getByRole('list')).toHaveAttribute(
       'aria-busy',
       'true',
     )
 
-    release()
     expect(await addButton('Backpack')).toBeEnabled()
     expect(await addButton('Slim Fit T-Shirt')).toBeEnabled()
     expect(within(products).getByRole('list')).toHaveAttribute(
@@ -51,8 +49,6 @@ describe('add to cart', () => {
 
   it('shows an error when the products fail to load, and recovers on retry', async () => {
     const store = mockFakeStore()
-    // Once for the root loader, and once for the retry when the list mounts
-    store.failNext('GET', PRODUCTS, { status: 500 })
     store.failNext('GET', PRODUCTS, { status: 500 })
     const { user } = renderApp()
 
@@ -367,8 +363,6 @@ describe('restoring a saved cart', () => {
 
   it('shows an error instead of the prices when the products fail, and recovers on retry', async () => {
     const store = mockFakeStore()
-    // Once for the root loader, and once for the retry when the list mounts
-    store.failNext('GET', PRODUCTS, { status: 500 })
     store.failNext('GET', PRODUCTS, { status: 500 })
     const { persister, restore } = savedCartPersister()
     const { user } = renderApp('/cart', { cartId: SAVED_CART_ID, persister })

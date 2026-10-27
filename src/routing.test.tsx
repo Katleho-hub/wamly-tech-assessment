@@ -1,5 +1,3 @@
-import { dehydrate, QueryClient } from '@tanstack/react-query'
-import { type Persister } from '@tanstack/react-query-persist-client'
 import { screen } from '@testing-library/react'
 
 import { mockFakeStore } from './test/fake-store'
@@ -8,9 +6,6 @@ import { renderApp } from './test/render-app'
 const homeLink = () => screen.getByRole('link', { name: 'wamlystore home' })
 const cartLink = () => screen.getByRole('link', { name: /^Cart/ })
 const backButton = () => screen.queryByRole('button', { name: 'Back' })
-// The root loader holds back the first render for a tick
-const findCartLink = () => screen.findByRole('link', { name: /^Cart/ })
-const findBackButton = () => screen.findByRole('button', { name: 'Back' })
 
 describe('routing', () => {
   beforeEach(() => {
@@ -43,7 +38,7 @@ describe('routing', () => {
   it('navigates between pages from the top nav', async () => {
     const { user, router } = renderApp('/')
 
-    await user.click(await findCartLink())
+    await user.click(cartLink())
     expect(router.state.location.pathname).toBe('/cart')
     expect(
       await screen.findByRole('heading', { name: 'Your cart is empty' }),
@@ -58,7 +53,7 @@ describe('routing', () => {
 
   it('goes back to the previous page', async () => {
     const { user, router } = renderApp('/')
-    await user.click(await findCartLink())
+    await user.click(cartLink())
     await user.click(homeLink())
     await user.click(cartLink())
 
@@ -73,7 +68,7 @@ describe('routing', () => {
   it('goes home when the app was opened on another page', async () => {
     const { user, router } = renderApp('/cart')
 
-    await user.click(await findBackButton())
+    await user.click(backButton()!)
 
     expect(router.state.location.pathname).toBe('/')
     expect(router.state.historyAction).toBe('PUSH')
@@ -83,7 +78,7 @@ describe('routing', () => {
     const { user, router } = renderApp('/nope')
 
     expect(
-      await screen.findByRole('heading', { name: /trouble finding this page/ }),
+      screen.getByRole('heading', { name: /trouble finding this page/ }),
     ).toBeInTheDocument()
     expect(backButton()).toBeInTheDocument()
 
@@ -126,26 +121,12 @@ describe('error page', () => {
   })
 
   it('offers a way back to the products when another page crashes', async () => {
-    // A saved backpack cart, so the cart page lists products
-    const saved = new QueryClient()
-    saved.setQueryData(['carts', 7], {
-      id: 7,
-      userId: 1,
-      products: [{ productId: 1, quantity: 1 }],
-    })
-    const persister: Persister = {
-      persistClient: () => {},
-      restoreClient: () =>
-        Promise.resolve({
-          timestamp: Date.now(),
-          buster: '',
-          clientState: dehydrate(saved),
-        }),
-      removeClient: () => {},
-    }
     const store = mockFakeStore()
+    const { user } = renderApp('/')
+    await user.click(await screen.findByRole('button', { name: /, Backpack$/ }))
+    // The cart page refetches the products when it opens
     store.failNext('GET', PRODUCTS, MALFORMED)
-    renderApp('/cart', { cartId: 7, persister })
+    await user.click(await screen.findByRole('link', { name: 'Cart (1)' }))
 
     expect(await errorHeading()).toBeInTheDocument()
     expect(tryAgainButton()).toBeInTheDocument()
