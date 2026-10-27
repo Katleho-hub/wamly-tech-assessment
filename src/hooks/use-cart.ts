@@ -19,12 +19,14 @@ export type CartActionCallbacks = {
 export function useCart() {
   const { cartId, setCartId } = useCartId()
 
-  const { data: cart } = useCartQuery(cartId)
+  const { cart, loading } = useCartQuery(cartId)
   const createCart = useCreateCartMutation()
   const updateCart = useUpdateCartMutation()
 
-  // Counts cart mutations from every component, not just this hook call
-  const busy = useIsMutating({ mutationKey: cartMutationKey }) > 0
+  // Counts cart mutations from every component, not just this hook call. Also
+  // busy while the saved cart loads, since every action below reads a missing
+  // cart as "no cart" and an add would start a second one
+  const busy = useIsMutating({ mutationKey: cartMutationKey }) > 0 || loading
   // Error of the most recent cart mutation from any component; clears once a
   // later mutation succeeds
   const error =
@@ -92,6 +94,7 @@ export function useCart() {
 
   return {
     cart,
+    loading,
     busy,
     error,
     addProduct,

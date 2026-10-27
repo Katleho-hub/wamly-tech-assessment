@@ -13,6 +13,9 @@ import { formatPrice } from './utils/format-price'
 import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
 
 const panel = 'rounded-2xl border border-line bg-white text-body'
+// A bar that stands in for a line of text until it loads
+const placeholder =
+  'animate-pulse rounded bg-card-media motion-reduce:animate-none'
 
 function itemsLabel(count: number) {
   return `${count} ${count === 1 ? 'item' : 'items'}`
@@ -20,8 +23,14 @@ function itemsLabel(count: number) {
 
 export default function CartPage() {
   const headingId = useId()
-  const { data: products } = useProductsQuery()
-  const { cart, busy, error, changeQuantity, removeProduct } = useCart()
+  const productsQuery = useProductsQuery()
+  const products = productsQuery.data
+  const { cart, loading, busy, error, changeQuantity, removeProduct } =
+    useCart()
+
+  if (loading) {
+    return null
+  }
 
   if (!cart || cart.products.length === 0) {
     return <EmptyCart />
@@ -60,12 +69,16 @@ export default function CartPage() {
             <span>Total</span>
           </div>
 
-          <ul className="divide-y divide-line">
+          <ul
+            aria-busy={productsQuery.isPending}
+            className="divide-y divide-line"
+          >
             {cart.products.map((item) => (
               <CartLine
                 key={item.productId}
                 item={item}
                 product={productsById.get(item.productId)}
+                loading={productsQuery.isPending}
                 disabled={busy}
                 onDecrease={() => changeQuantity(item.productId, -1)}
                 onIncrease={() => changeQuantity(item.productId, 1)}
@@ -75,7 +88,13 @@ export default function CartPage() {
           </ul>
         </div>
 
-        <OrderSummary itemCount={itemCount} subtotal={subtotal} />
+        {products ? (
+          <OrderSummary itemCount={itemCount} subtotal={subtotal} />
+        ) : productsQuery.isError ? (
+          <PricesError onRetry={() => void productsQuery.refetch()} />
+        ) : (
+          <OrderSummarySkeleton />
+        )}
       </div>
     </section>
   )
@@ -83,8 +102,12 @@ export default function CartPage() {
 
 type CartLineProps = {
   item: CartItem
-  // Missing only until the products load
+  // Missing while the products load, if they fail to, or if the product is no
+  // longer in the catalogue
   product: Product | undefined
+  // The products are still loading, so the details are placeholders for now.
+  // The quantity controls only need the cart, so they work meanwhile
+  loading: boolean
   disabled: boolean
   onDecrease: () => void
   onIncrease: () => void
@@ -94,6 +117,7 @@ type CartLineProps = {
 function CartLine({
   item,
   product,
+  loading,
   disabled,
   onDecrease,
   onIncrease,
@@ -103,7 +127,9 @@ function CartLine({
 
   return (
     <li className="flex gap-3 p-4">
-      <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-card-media p-1.5">
+      <div
+        className={`flex size-16 shrink-0 items-center justify-center rounded-xl bg-card-media p-1.5 ${loading ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+      >
         {product && (
           <img
             src={resizedImageUrl(product.image, 64)}
@@ -120,21 +146,40 @@ function CartLine({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {/* Placeholders are one line tall, so nothing shifts as text arrives */}
         <div className="flex justify-between gap-3">
-          <h3 className="line-clamp-2 text-sm font-semibold text-navy">
-            {title}
-          </h3>
-          {product && (
+          {loading ? (
+            <div aria-hidden="true" className="flex h-5 flex-1 items-center">
+              <div className={`h-3 w-3/4 ${placeholder}`} />
+            </div>
+          ) : (
+            <h3 className="line-clamp-2 text-sm font-semibold text-navy">
+              {title}
+            </h3>
+          )}
+          {product ? (
             <p className="shrink-0 text-sm font-semibold">
               {formatPrice(product.price * item.quantity)}
             </p>
+          ) : (
+            loading && (
+              <div aria-hidden="true" className="flex h-5 items-center">
+                <div className={`h-3 w-14 ${placeholder}`} />
+              </div>
+            )
           )}
         </div>
 
-        {product && (
+        {product ? (
           <p className="text-xs text-muted">
             {formatPrice(product.price)} each
           </p>
+        ) : (
+          loading && (
+            <div aria-hidden="true" className="flex h-4 items-center">
+              <div className={`h-2.5 w-20 ${placeholder}`} />
+            </div>
+          )
         )}
 
         <div className="mt-1 flex items-center gap-3">
@@ -229,6 +274,72 @@ function OrderSummary({
           <dd>{formatPrice(subtotal)}</dd>
         </div>
       </dl>
+    </aside>
+  )
+}
+
+// Stands in for the OrderSummary until the prices load
+function OrderSummarySkeleton() {
+  const headingId = useId()
+
+  return (
+    // The headings stay as text; only the parts that wait on prices pulse
+    <aside
+      aria-labelledby={headingId}
+      aria-busy="true"
+      className={`${panel} p-5 text-sm`}
+    >
+      <h3 id={headingId} className="mb-3 font-bold text-navy">
+        Order summary
+      </h3>
+
+      <div
+        aria-hidden="true"
+        className="flex animate-pulse flex-col gap-2 motion-reduce:animate-none"
+      >
+        {/* Rows one text-sm line tall: subtotal, then delivery */}
+        <div className="flex h-5 items-center justify-between gap-3">
+          <div className="h-3 w-28 rounded bg-card-media" />
+          <div className="h-3 w-14 rounded bg-card-media" />
+        </div>
+        <div className="flex h-5 items-center justify-between gap-3">
+          <div className="h-3 w-16 rounded bg-card-media" />
+          <div className="h-3 w-32 rounded bg-card-media" />
+        </div>
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3 text-base font-bold"
+      >
+        <p>Total</p>
+        <div className={`h-4 w-16 ${placeholder}`} />
+      </div>
+    </aside>
+  )
+}
+
+// Takes the OrderSummary's place when the prices fail to load, since a
+// subtotal without them would be wrong
+function PricesError({ onRetry }: { onRetry: () => void }) {
+  const headingId = useId()
+
+  return (
+    <aside aria-labelledby={headingId} className={`${panel} p-5 text-sm`}>
+      <h3 id={headingId} className="mb-3 font-bold text-navy">
+        Order summary
+      </h3>
+
+      <p role="alert" className="mb-4">
+        Couldn't load prices. Check your connection.
+      </p>
+      <button
+        type="button"
+        className="rounded-xl bg-brand-strong px-6 py-3 text-sm font-semibold text-white"
+        onClick={onRetry}
+      >
+        Try again
+      </button>
     </aside>
   )
 }
