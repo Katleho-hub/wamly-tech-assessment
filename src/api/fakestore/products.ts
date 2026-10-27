@@ -25,11 +25,11 @@ const productsQuery = queryOptions({
   staleTime: Infinity,
 })
 
-export function useProducts() {
+export function useProductsQuery() {
   return useQuery(productsQuery)
 }
 
-export function useProduct(id: number) {
+export function useProductQuery(id: number) {
   return useQuery({
     queryKey: ['products', id],
     queryFn: () => getProductById(id),
@@ -38,7 +38,7 @@ export function useProduct(id: number) {
 }
 
 // Starts fetching without holding up navigation, so the product list still
-// shows its skeletons. A failure is left for useProducts to show and retry.
+// shows its skeletons. A failure is left for useProductsQuery to show and retry.
 export function productsLoader(queryClient: QueryClient) {
   return () => {
     queryClient.query(productsQuery).catch(() => {})
