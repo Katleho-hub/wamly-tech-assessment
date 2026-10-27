@@ -12,7 +12,7 @@ it('shows the error page when a page fails to load', async () => {
   mockFakeStore()
   const { user } = renderApp('/')
 
-  await user.click(screen.getByRole('link', { name: /^Cart/ }))
+  await user.click(await screen.findByRole('link', { name: /^Cart/ }))
 
   expect(
     await screen.findByRole('heading', {
