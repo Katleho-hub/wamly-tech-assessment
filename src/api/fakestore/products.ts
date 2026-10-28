@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { QueryClient, queryOptions, useQuery } from '@tanstack/react-query'
 
 import fakeStoreApi from './client'
 
@@ -19,17 +19,29 @@ function getProductById(id: number) {
   return fakeStoreApi<Product>(`/products/${id}`)
 }
 
-export function useProducts() {
-  return useQuery({
-    queryKey: ['products'],
-    queryFn: getAllProducts,
-  })
+const productsQuery = queryOptions({
+  queryKey: ['products'],
+  queryFn: getAllProducts,
+  staleTime: Infinity,
+})
+
+export function useProductsQuery() {
+  return useQuery(productsQuery)
 }
 
-export function useProduct(id: number) {
+export function useProductQuery(id: number) {
   return useQuery({
     queryKey: ['products', id],
     queryFn: () => getProductById(id),
     enabled: Boolean(id),
   })
+}
+
+// Starts fetching without holding up navigation, so the product list still
+// shows its skeletons. A failure is left for useProductsQuery to show and retry.
+export function productsLoader(queryClient: QueryClient) {
+  return () => {
+    queryClient.query(productsQuery).catch(() => {})
+    return null
+  }
 }

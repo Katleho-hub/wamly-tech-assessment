@@ -3,11 +3,11 @@ import { useIsMutating, useMutationState } from '@tanstack/react-query'
 import {
   type CartItem,
   cartMutationKey,
-  useCart,
-  useCreateCart,
-  useUpdateCart,
-} from './api/fakestore/cart'
-import { useCartId } from './context/cart-id-context'
+  useCartQuery,
+  useCreateCartMutation,
+  useUpdateCartMutation,
+} from '../api/fakestore/cart'
+import { useCartId } from '../context/cart-id-context'
 
 export type CartActionCallbacks = {
   onSuccess?: () => void
@@ -15,16 +15,18 @@ export type CartActionCallbacks = {
 }
 
 // Cart state and actions. The cart id comes from CartIdProvider, the mutations
-// seed the query cache, and useCart reads the cart back from it.
-export function useCartFlow() {
+// seed the query cache, and useCartQuery reads the cart back from it.
+export function useCart() {
   const { cartId, setCartId } = useCartId()
 
-  const { data: cart } = useCart(cartId)
-  const createCart = useCreateCart()
-  const updateCart = useUpdateCart()
+  const { cart, loading } = useCartQuery(cartId)
+  const createCart = useCreateCartMutation()
+  const updateCart = useUpdateCartMutation()
 
-  // Counts cart mutations from every component, not just this hook call
-  const busy = useIsMutating({ mutationKey: cartMutationKey }) > 0
+  // Counts cart mutations from every component, not just this hook call. Also
+  // busy while the saved cart loads, since every action below reads a missing
+  // cart as "no cart" and an add would start a second one
+  const busy = useIsMutating({ mutationKey: cartMutationKey }) > 0 || loading
   // Error of the most recent cart mutation from any component; clears once a
   // later mutation succeeds
   const error =
@@ -92,6 +94,7 @@ export function useCartFlow() {
 
   return {
     cart,
+    loading,
     busy,
     error,
     addProduct,

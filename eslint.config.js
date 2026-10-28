@@ -31,6 +31,23 @@ export default defineConfig([
     },
   },
   {
+    // Route modules: one default-exported component, no named value exports
+    files: ['src/**/*.page.tsx', 'src/**/*.layout.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Program:not(:has(ExportDefaultDeclaration))',
+          message: 'Route modules must have a default export.',
+        },
+        {
+          selector: "ExportNamedDeclaration[exportKind='value']",
+          message: 'Route modules must use a default export, not named.',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
   },

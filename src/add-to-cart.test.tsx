@@ -1,4 +1,9 @@
-import { screen, within } from '@testing-library/react'
+import { dehydrate, QueryClient } from '@tanstack/react-query'
+import {
+  type PersistedClient,
+  type Persister,
+} from '@tanstack/react-query-persist-client'
+import { act, screen, within } from '@testing-library/react'
 
 import { mockFakeStore, NEW_CART_ID } from './test/fake-store'
 import { renderApp } from './test/render-app'
@@ -25,15 +30,17 @@ function findCartLink(count: number) {
 
 describe('add to cart', () => {
   it('shows skeletons, then the products', async () => {
-    mockFakeStore()
+    const store = mockFakeStore()
+    const release = store.holdNext('GET', PRODUCTS)
     renderApp()
 
-    const products = screen.getByRole('region', { name: 'Products' })
+    const products = await screen.findByRole('region', { name: 'Products' })
     expect(within(products).getByRole('list')).toHaveAttribute(
       'aria-busy',
       'true',
     )
 
+    release()
     expect(await addButton('Backpack')).toBeEnabled()
     expect(await addButton('Slim Fit T-Shirt')).toBeEnabled()
     expect(within(products).getByRole('list')).toHaveAttribute(
@@ -44,6 +51,8 @@ describe('add to cart', () => {
 
   it('shows an error when the products fail to load, and recovers on retry', async () => {
     const store = mockFakeStore()
+    // Once for the root loader, and once for the retry when the list mounts
+    store.failNext('GET', PRODUCTS, { status: 500 })
     store.failNext('GET', PRODUCTS, { status: 500 })
     const { user } = renderApp()
 
@@ -264,5 +273,163 @@ describe('cart page', () => {
       "Couldn't update your cart",
     )
     expect(await findCartLink(1)).toBeInTheDocument()
+  })
+})
+
+describe('restoring a saved cart', () => {
+  const SAVED_CART_ID = 7
+
+  // A persister that holds a saved backpack cart until restore() is called
+  function savedCartPersister() {
+    const saved = new QueryClient()
+    saved.setQueryData(['carts', SAVED_CART_ID], {
+      id: SAVED_CART_ID,
+      userId: 1,
+      products: [{ productId: 1, quantity: 2 }],
+    })
+    const persisted: PersistedClient = {
+      timestamp: Date.now(),
+      buster: '',
+      clientState: dehydrate(saved),
+    }
+
+    let restore!: () => void
+    const restored = new Promise<void>((resolve) => (restore = resolve))
+    const persister: Persister = {
+      persistClient: () => {},
+      restoreClient: () => restored.then(() => persisted),
+      removeClient: () => {},
+    }
+
+    return {
+      persister,
+      restore: () =>
+        act(async () => {
+          restore()
+          await restored
+        }),
+    }
+  }
+
+  it("doesn't show an empty cart while the saved cart is restored", async () => {
+    mockFakeStore()
+    const { persister, restore } = savedCartPersister()
+    renderApp('/cart', { cartId: SAVED_CART_ID, persister })
+
+    expect(
+      await screen.findByRole('link', { name: 'Cart' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Your cart is empty' }),
+    ).not.toBeInTheDocument()
+
+    await restore()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Your cart (2 items)' }),
+    ).toBeInTheDocument()
+    expect(await findCartLink(2)).toBeInTheDocument()
+  })
+
+  it('shows placeholders for the product details until the products load', async () => {
+    const store = mockFakeStore()
+    const releaseProducts = store.holdNext('GET', PRODUCTS)
+    const { persister, restore } = savedCartPersister()
+    const { user } = renderApp('/cart', { cartId: SAVED_CART_ID, persister })
+
+    await restore()
+
+    const cart = await screen.findByRole('region', {
+      name: 'Your cart (2 items)',
+    })
+    expect(within(cart).getByRole('list')).toHaveAttribute('aria-busy', 'true')
+    expect(
+      screen.getByRole('complementary', { name: 'Order summary' }),
+    ).toHaveAttribute('aria-busy', 'true')
+    expect(
+      screen.queryByRole('heading', { name: 'Product 1' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText('$0.00')).not.toBeInTheDocument()
+
+    // The quantity only needs the cart, so it can change meanwhile
+    await user.click(
+      screen.getByRole('button', { name: 'Decrease quantity, Product 1' }),
+    )
+    expect(await findCartLink(1)).toBeInTheDocument()
+
+    releaseProducts()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Backpack' }),
+    ).toBeInTheDocument()
+    expect(within(cart).getByRole('list')).toHaveAttribute('aria-busy', 'false')
+  })
+
+  it('shows an error instead of the prices when the products fail, and recovers on retry', async () => {
+    const store = mockFakeStore()
+    // Once for the root loader, and once for the retry when the list mounts
+    store.failNext('GET', PRODUCTS, { status: 500 })
+    store.failNext('GET', PRODUCTS, { status: 500 })
+    const { persister, restore } = savedCartPersister()
+    const { user } = renderApp('/cart', { cartId: SAVED_CART_ID, persister })
+
+    await restore()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't load prices",
+    )
+    expect(
+      screen.getByRole('heading', { name: 'Product 1' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Increase quantity, Product 1' }),
+    ).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Backpack' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+})
+
+describe('fetching a saved cart', () => {
+  const SAVED_CART_ID = 7
+  // Without a persister nothing is restored, so the saved cart is fetched
+  const GET_SAVED_CART = new RegExp(`^/carts/${SAVED_CART_ID}$`)
+
+  it("doesn't show an empty cart until the fetch finishes", async () => {
+    const store = mockFakeStore()
+    const release = store.holdNext('GET', GET_SAVED_CART)
+    renderApp('/cart', { cartId: SAVED_CART_ID })
+
+    expect(
+      await screen.findByRole('link', { name: 'Cart' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Your cart is empty' }),
+    ).not.toBeInTheDocument()
+
+    // The fake store doesn't keep carts, so the fetch finds nothing
+    release()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Your cart is empty' }),
+    ).toBeInTheDocument()
+    expect(await findCartLink(0)).toBeInTheDocument()
+  })
+
+  it("can't add until the fetch finishes, so it doesn't start a second cart", async () => {
+    const store = mockFakeStore()
+    const release = store.holdNext('GET', GET_SAVED_CART)
+    renderApp('/', { cartId: SAVED_CART_ID })
+
+    expect(await addButton('Backpack')).toBeDisabled()
+
+    release()
+
+    expect(await findCartLink(0)).toBeInTheDocument()
+    expect(await addButton('Backpack')).toBeEnabled()
   })
 })

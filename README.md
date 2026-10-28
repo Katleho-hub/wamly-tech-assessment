@@ -44,10 +44,10 @@ around this:
 
 - The first add creates a cart with `POST /carts`. Later changes send the whole
   product list with `PUT /carts/:id`.
-- Each response is written straight into the query cache. `useCart` uses
+- Each response is written straight into the query cache. `useCartQuery` uses
   `staleTime: 'static'`, so it never refetches, because a refetch would replace
   the cart with the server's unchanged copy.
-- The cart id lives in React context (`CartIdProvider`). `useCartFlow` gives
+- The cart id lives in React context (`CartIdProvider`). `useCart` gives
   the product list and the cart page the cart, its actions and the shared busy
   and error state. The top nav reads the cart for its item count.
 
