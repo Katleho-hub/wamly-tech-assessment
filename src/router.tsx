@@ -2,10 +2,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 
 import { productsLoader } from './api/fakestore/products'
-import CartPage from './cart.page'
 import { ErrorBoundary } from './components/error-boundary'
 import queryClient from './lib/query-client'
-import NotFoundPage from './not-found.page'
 import ProductsPage from './products.page'
 import RootLayout from './root.layout'
 
@@ -25,8 +23,21 @@ export function createRoutes(queryClient: QueryClient): RouteObject[] {
           errorElement: <ErrorBoundary />,
           children: [
             { index: true, element: <ProductsPage /> },
-            { path: 'cart', element: <CartPage /> },
-            { path: '*', element: <NotFoundPage /> },
+            // Function form: with the object form, React Router ignores a
+            // failed import on routes without a loader and renders a blank
+            // page instead of the error boundary
+            {
+              path: 'cart',
+              lazy: async () => ({
+                Component: (await import('./cart.page')).default,
+              }),
+            },
+            {
+              path: '*',
+              lazy: async () => ({
+                Component: (await import('./not-found.page')).default,
+              }),
+            },
           ],
         },
       ],

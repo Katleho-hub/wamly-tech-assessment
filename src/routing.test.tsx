@@ -44,10 +44,10 @@ describe('routing', () => {
     const { user, router } = renderApp('/')
 
     await user.click(await findCartLink())
-    expect(router.state.location.pathname).toBe('/cart')
     expect(
       await screen.findByRole('heading', { name: 'Your cart is empty' }),
     ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/cart')
 
     await user.click(homeLink())
     expect(router.state.location.pathname).toBe('/')
@@ -72,6 +72,7 @@ describe('routing', () => {
 
   it('goes home when the app was opened on another page', async () => {
     const { user, router } = renderApp('/cart')
+    await screen.findByRole('heading', { name: 'Your cart is empty' })
 
     await user.click(await findBackButton())
 
