@@ -3,10 +3,10 @@ import { type ReactNode, useId, useState } from 'react'
 import { type Product } from '../api/fakestore/products'
 import type { CartActionCallbacks } from '../hooks/use-cart'
 import { formatPrice } from '../utils/format-price'
-import { resizedImageSrcSet, resizedImageUrl } from '../utils/resized-image'
 import { AlertIcon } from './icons/alert-icon'
 import { CheckIcon } from './icons/check-icon'
 import { SpinnerIcon } from './icons/spinner-icon'
+import { ProductImage } from './product-image'
 
 type ButtonState = 'idle' | 'adding' | 'added' | 'error'
 
@@ -67,10 +67,11 @@ export function ProductCard({
       className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-body"
     >
       <figure className="pulse flex aspect-square max-h-44 items-center justify-center border-b border-line bg-card-media p-4 md:aspect-4/3 md:max-h-40">
-        <img
-          src={resizedImageUrl(product.image, 216)}
+        <ProductImage
+          src={product.image}
+          srcWidth={216}
           // 1x/2x/3x of the 144px mobile max and 1x/2x of the 216px desktop max
-          srcSet={resizedImageSrcSet(product.image, [144, 216, 288, 432])}
+          srcSetWidths={[144, 216, 288, 432]}
           // Rendered width: at most 143px on mobile, a third of the viewport
           // from sm, and a quarter of max-w-5xl from lg, minus padding and gaps
           sizes="(min-width: 1024px) 216px, (min-width: 640px) calc(33vw - 50px), min(143px, calc(50vw - 50px))"

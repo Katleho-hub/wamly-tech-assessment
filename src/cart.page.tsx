@@ -7,10 +7,10 @@ import { CartIcon } from './components/icons/cart-icon'
 import { MinusIcon } from './components/icons/minus-icon'
 import { PlusIcon } from './components/icons/plus-icon'
 import { TrashIcon } from './components/icons/trash-icon'
+import { ProductImage } from './components/product-image'
 import { useCart } from './hooks/use-cart'
 import { countItems } from './utils/cart'
 import { formatPrice } from './utils/format-price'
-import { resizedImageSrcSet, resizedImageUrl } from './utils/resized-image'
 
 const panel = 'rounded-2xl border border-line bg-white text-body'
 // A bar that stands in for a line of text until it loads
@@ -131,9 +131,10 @@ function CartLine({
         className={`flex size-16 shrink-0 items-center justify-center rounded-xl bg-card-media p-1.5 ${loading ? 'animate-pulse motion-reduce:animate-none' : ''}`}
       >
         {product && (
-          <img
-            src={resizedImageUrl(product.image, 64)}
-            srcSet={resizedImageSrcSet(product.image, [64, 128, 192])}
+          <ProductImage
+            src={product.image}
+            srcWidth={64}
+            srcSetWidths={[64, 128, 192]}
             sizes="64px"
             alt=""
             loading="lazy"

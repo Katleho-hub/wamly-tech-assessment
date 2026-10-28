@@ -79,7 +79,8 @@ wait for each other.
 Fake Store's product images are 220–320 kB PNGs. The app loads them through the
 [wsrv.nl](https://wsrv.nl) image proxy, which resizes them and converts them to
 WebP. A 320px image is about 20 kB. `srcset` and `sizes` let the browser pick
-the smallest width for the screen.
+the smallest width for the screen. If the proxy fails, `ProductImage` falls back
+to the original image from Fake Store.
 
 The first four cards, which are above the fold, load their images eagerly at
 high priority. The rest load lazily. `index.html` also preconnects to the API
@@ -93,6 +94,7 @@ and the proxy, and loads the Poppins font without blocking rendering.
 - the cart page
 - routing and the error pages
 - the product card
+- the product image fallback
 
 `fetch` is mocked in `src/test/fake-store.ts`, so the tests don't use the
 network.
@@ -109,7 +111,8 @@ project needs Node 24.9.
 - Every cart belongs to user 1. There's no sign-in.
 - There's no checkout, delivery cost or promo code. The total is added up in the
   browser.
-- Images depend on wsrv.nl. If the proxy is down, they don't load.
+- If wsrv.nl is down, images fall back to the full-size PNGs, which are much
+  slower to load.
 - Cart writes run one at a time, so quick adds wait for each other.
 
 ## What I'd do next
@@ -117,6 +120,5 @@ project needs Node 24.9.
 - Save the cart in `localStorage` so it survives a reload.
 - Update the cart optimistically with a rollback, and queue writes instead of
   disabling the buttons.
-- Fall back to the original image URL when the proxy fails.
 - Add search and category filters, and a product detail page.
 - Add end-to-end tests with Playwright against the real API.
