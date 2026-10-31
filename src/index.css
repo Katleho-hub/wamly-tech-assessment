@@ -53,6 +53,32 @@
   --scrollbar-subtle-thumb: oklch(18.92% 0.0459 268.48 / 0.14);
 }
 
+/* ---------- Fonts ---------- */
+
+/* Self-hosted Poppins (SIL OFL, see fonts/OFL.txt): the Latin subset, in only
+   the weights in use. swap shows the fallback font until each one loads. */
+@font-face {
+  font-display: swap;
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/poppins-v24-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./fonts/poppins-v24-latin-600.woff2') format('woff2');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  src: url('./fonts/poppins-v24-latin-700.woff2') format('woff2');
+}
+
 /* ---------- Base ---------- */
 
 @layer base {
