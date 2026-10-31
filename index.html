@@ -5,9 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Storefront</title>
-    <!-- Product data is fetched from fakestoreapi.com. crossorigin matches
-         fetch()'s CORS mode, so the browser reuses this connection. -->
-    <link rel="preconnect" href="https://fakestoreapi.com" crossorigin />
+
     <!-- Product images are resized by the wsrv.nl image proxy -->
     <link rel="preconnect" href="https://wsrv.nl" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,6 +30,14 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
       />
     </noscript>
+    <!-- Product data is fetched from fakestoreapi.com. crossorigin matches
+         fetch()'s CORS mode, so the browser reuses this connection. -->
+    <link
+      rel="preload"
+      href="https://fakestoreapi.com/products"
+      as="fetch"
+      crossorigin
+    />
   </head>
   <body>
     <div id="root"></div>

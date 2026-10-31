@@ -9,7 +9,7 @@ import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 
 import { CartIdProvider } from '../context/cart-id-provider'
-import { routes } from '../router'
+import { createRoutes } from '../router'
 
 type RenderAppOptions = {
   // A cart id saved by an earlier visit
@@ -31,7 +31,9 @@ export function renderApp(
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
-  const router = createMemoryRouter(routes, { initialEntries: [path] })
+  const router = createMemoryRouter(createRoutes(queryClient), {
+    initialEntries: [path],
+  })
 
   const app = (
     <CartIdProvider>
