@@ -51,7 +51,7 @@ export const cartMutationKey = ['carts']
 export function useCart(id: number | null) {
   const isIdValid = id != null
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['carts', id],
     queryFn: isIdValid ? () => getCartById(id) : skipToken,
     /**
@@ -61,7 +61,18 @@ export function useCart(id: number | null) {
      * server's unmodified (or missing) cart would overwrite it
      */
     staleTime: 'static',
+    gcTime: Infinity,
   })
+
+  return {
+    cart: query.data,
+    /**
+     * A saved cart that isn't in the cache yet: it's still being restored from
+     * storage, or fetched when the restore didn't bring it back. Until then a
+     * missing cart doesn't mean an empty one
+     */
+    loading: isIdValid && query.isPending,
+  }
 }
 
 export function useCreateCart() {

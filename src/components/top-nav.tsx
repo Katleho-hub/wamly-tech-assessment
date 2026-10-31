@@ -11,7 +11,7 @@ export function TopNav() {
   const location = useLocation()
   const navigate = useNavigate()
   const { cartId } = useCartId()
-  const { data: cart } = useCart(cartId)
+  const { cart, loading } = useCart(cartId)
 
   const isHome = location.pathname === '/'
   // 'default' marks the page the app was opened on, so there's no in-app
@@ -52,7 +52,16 @@ export function TopNav() {
           className="ml-auto flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold text-body aria-[current=page]:border-navy aria-[current=page]:text-navy"
         >
           <CartIcon className="size-4" />
-          Cart ({countItems(cart)})
+          Cart
+          {/* Pulse until the saved cart loads, rather than show (0) */}
+          {loading ? (
+            <span
+              aria-hidden="true"
+              className="h-3 w-5 animate-pulse rounded bg-card-media motion-reduce:animate-none"
+            />
+          ) : (
+            ` (${countItems(cart)})`
+          )}
         </NavLink>
       </nav>
     </header>
