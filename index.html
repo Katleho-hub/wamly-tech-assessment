@@ -10,26 +10,17 @@
     <link rel="preconnect" href="https://wsrv.nl" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Only the weights in use (400, 600, 700). The stylesheet loads without
-         blocking render: media="print" doesn't block, and onload switches it
-         to all. Text shows in the fallback font until Poppins arrives. -->
+    <!-- Poppins is self-hosted (src/fonts). Only the body weight is preloaded;
+         the build points this at the same hashed file index.css uses, so it's
+         fetched once. font-display: swap shows the fallback font until it
+         arrives. Fonts need crossorigin even from the same origin. -->
     <link
       rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      href="./src/fonts/poppins-v24-latin-regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-      />
-    </noscript>
     <!-- Product data is fetched from fakestoreapi.com. crossorigin matches
          fetch()'s CORS mode, so the browser reuses this connection. -->
     <link
