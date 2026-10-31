@@ -19,14 +19,14 @@ function getProductById(id: number) {
   return fakeStoreApi<Product>(`/products/${id}`)
 }
 
-export function useProducts() {
+export function useProductsQuery() {
   return useQuery({
     queryKey: ['products'],
     queryFn: getAllProducts,
   })
 }
 
-export function useProduct(id: number) {
+export function useProductQuery(id: number) {
   return useQuery({
     queryKey: ['products', id],
     queryFn: () => getProductById(id),
